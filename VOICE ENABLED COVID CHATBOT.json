@@ -1,0 +1,778 @@
+[
+    {
+        "id": "d25c0873.6fb798",
+        "type": "tab",
+        "label": "Voice Enabled COVID Chatbot",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "4cb6d11f.80c4d",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1010,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "aa39615a.768cf",
+        "type": "switch",
+        "z": "d25c0873.6fb798",
+        "name": "Intents",
+        "property": "payload.intents[0].intent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "How_many_cases",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 310,
+        "y": 340,
+        "wires": [
+            [
+                "ba54586d.b370a8"
+            ],
+            [
+                "f5fd7834.b9c938"
+            ]
+        ]
+    },
+    {
+        "id": "28e1fb9d.b38f64",
+        "type": "comment",
+        "z": "d25c0873.6fb798",
+        "name": "Reply to the user",
+        "info": "",
+        "x": 1220,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "30431766.075668",
+        "type": "change",
+        "z": "d25c0873.6fb798",
+        "name": "Pass the recorded transcript to Conversation",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "transcription",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "chatstart",
+                "pt": "flow",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 100,
+        "wires": [
+            [
+                "83a43b53.2d7148",
+                "9a0390d.8f4a57"
+            ]
+        ]
+    },
+    {
+        "id": "95bb9f1a.9d43d",
+        "type": "watson-text-to-speech",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "lang": "en-US",
+        "langhidden": "en-US",
+        "langcustom": "NoCustomisationSetting",
+        "langcustomhidden": "",
+        "voice": "en-US_LisaV2Voice",
+        "voicehidden": "en-US_LisaV2Voice",
+        "format": "audio/wav",
+        "password": "",
+        "apikey": "bu_UzTAylfMTxKFzYHdJI3rQuL4RAmGpmWfZXaTKv9Rb",
+        "payload-response": true,
+        "service-endpoint": "https://api.eu-gb.text-to-speech.watson.cloud.ibm.com/instances/2f75f3e0-9f07-49a4-89cd-5dd6aa611710",
+        "x": 1020,
+        "y": 380,
+        "wires": [
+            [
+                "134c8f0d.be7711"
+            ]
+        ]
+    },
+    {
+        "id": "7a1173c0.5940bc",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "transcription",
+        "x": 530,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "f5fd7834.b9c938",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "Watson Conversation Reply",
+        "func": "function createTextLinks(text) {\n\n  return (text || \"\").replace(\n    /([^\\S]|^)(((https?\\:\\/\\/)|(www\\.))(\\S+))/gi,\n    function(match, space, url){\n      var hyperlink = url;\n      if (!hyperlink.match('^https?:\\/\\/')) {\n        hyperlink = 'http://' + hyperlink;\n      }\n      return space + '<a href=\"' + hyperlink + '\">' + url + '</a>';\n    }\n  );\n}\n\nvar response = \"\"\n\nfor(i=0;i<msg.payload.output.generic.length;i++) {\n  response = response + msg.payload.output.generic[i].text ;\n}\n\nresponse = createTextLinks(response);\n\n// The news reports will have \\n, replace with breaks\nmsg.payload = response.replace(/(?:\\r\\n|\\r|\\n)/g, '<br />');\n\n// The news reports will have http: links. Make them \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 580,
+        "y": 320,
+        "wires": [
+            [
+                "4cb6d11f.80c4d",
+                "83a43b53.2d7148",
+                "95bb9f1a.9d43d"
+            ]
+        ]
+    },
+    {
+        "id": "9a0390d.8f4a57",
+        "type": "watson-conversation-v1",
+        "z": "d25c0873.6fb798",
+        "name": "CovBot",
+        "workspaceid": "a81dedd2-eebf-4739-ad8e-f616eb10fb57",
+        "multiuser": false,
+        "context": true,
+        "empty-payload": false,
+        "service-endpoint": "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/116dd775-c95c-4d69-a8d6-4b04ea522ddf",
+        "timeout": "",
+        "optout-learning": false,
+        "x": 920,
+        "y": 100,
+        "wires": [
+            [
+                "2dc29eed.909e32",
+                "908b0a7a.4a8e08"
+            ]
+        ]
+    },
+    {
+        "id": "2dc29eed.909e32",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1150,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "3ca96760.7f20e8",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1010,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "797d0ad0.b47aa4",
+        "type": "watson-speech-to-text",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "alternatives": 1,
+        "speakerlabels": true,
+        "smartformatting": false,
+        "lang": "en-US",
+        "langhidden": "en-US",
+        "langcustom": "NoCustomisationSetting",
+        "langcustomhidden": "",
+        "custom-weight": "0.5",
+        "band": "BroadbandModel",
+        "bandhidden": "BroadbandModel",
+        "keywords": "",
+        "keywords-threshold": "0.5",
+        "word-confidence": false,
+        "password": "",
+        "apikey": "HMmBr5Idx99idvFqb4y6msDh5WpFoX9hssWojDsXIYhr",
+        "payload-response": false,
+        "streaming-mode": false,
+        "streaming-mute": true,
+        "auto-connect": false,
+        "discard-listening": false,
+        "disable-precheck": false,
+        "service-endpoint": "https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/91e79d54-a625-4c25-88a6-f2c5c6fdc570",
+        "x": 280,
+        "y": 100,
+        "wires": [
+            [
+                "7a1173c0.5940bc",
+                "30431766.075668"
+            ]
+        ]
+    },
+    {
+        "id": "5381ae2d.5840f",
+        "type": "ui_template",
+        "z": "d25c0873.6fb798",
+        "group": "b6fe0a5b.a76268",
+        "name": "Chat History",
+        "order": 1,
+        "width": 10,
+        "height": 15,
+        "format": "<div id=\"{{'my_'+$id}}\" style=\"{{'color:'+theme.base_color}}\"></div>\n<script>\n(function(scope) {\n  scope.$watch('msg', function(msg) {\n    if (msg) {\n      // Render the chatbot table when msg arrives\n      $(\"#my_\"+scope.$id).html(msg.payload);\n      // scroll to Bottom\n      var elmnt = document.getElementById(\"chatbot\");\n      elmnt.scrollIntoView(false);\n    }\n  });\n})(scope);\n</script>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": false,
+        "templateScope": "local",
+        "x": 1150,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "83a43b53.2d7148",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "Build Chat table",
+        "func": "var chathistory = flow.get(\"history\")||[];\nvar chatstart = flow.get(\"chatstart\");\nvar who;\n\nif( typeof(chatstart) == 'undefined' ) { chatstart = true ; }\nif(chatstart===true) {\n    who = \"Q\";\n} else {\n    who = \"A\";\n}\n\nvar newchatentry = {\"who\":\"\",\"text\":\"\"};\nif( chathistory.length === 0 ) {\n    // First chat, init the table\n    newchatentry = {\"who\":\"A\",\"text\":\"Hello, I’m the COVID Crisis Communication Bot ready to answer your questions about COVID-19. How can I help you?\"};\n\n    // Add the question, if its not a Clear Chat button press\n    if( msg.payload.length ) { \n        chathistory.push(newchatentry);\n        newchatentry = {\"who\":\"Q\",\"text\":msg.payload}; \n    }\n} else {\n    newchatentry = {\"who\":who,\"text\":msg.payload};\n}\nchathistory.push(newchatentry);\n\nmsg.payload=\"<style>\";\nmsg.payload=msg.payload+\"table { width: 488px; margin-top: 10px; }\";\nmsg.payload=msg.payload+\"tr:nth-child(even){background-color: #f2f2f2;}\";\nmsg.payload=msg.payload+\"th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; width: 10%;}\";\nmsg.payload=msg.payload+\"</style>\";\n\nmsg.payload=msg.payload+\"<table id=\\\"chatbot\\\" span=100%><tr><th>Chat History</th></tr>\";\nfor( i = 0; i < chathistory.length; i++ ) {\n    if( chathistory[i].who == \"Q\" ) {\n        msg.payload = msg.payload + \"<tr><td><p style=\\\"text-align:right;\\\">\"+chathistory[i].text+\"</p></td></tr>\" ;\n    } else {\n        msg.payload = msg.payload + \"<tr><td><p style=\\\"text-align:left;background-color:#f2f2f2;\\\">\" +chathistory[i].text+\"</p></td></tr>\" ;\n    }\n}\n\nmsg.payload = msg.payload + \"</table>\";\nflow.set(\"chatstart\",false);\nflow.set(\"history\",chathistory);\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 940,
+        "y": 220,
+        "wires": [
+            [
+                "5381ae2d.5840f",
+                "8b42c2b7.433d3"
+            ]
+        ]
+    },
+    {
+        "id": "8b42c2b7.433d3",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1150,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "dc64fda9.279b3",
+        "type": "inject",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "Clear Chat",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 120,
+        "y": 240,
+        "wires": [
+            [
+                "58725a1f.502ae4"
+            ]
+        ]
+    },
+    {
+        "id": "58725a1f.502ae4",
+        "type": "change",
+        "z": "d25c0873.6fb798",
+        "name": "delete history",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "history",
+                "pt": "flow"
+            },
+            {
+                "t": "set",
+                "p": "chatstart",
+                "pt": "flow",
+                "to": "false",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 220,
+        "wires": [
+            [
+                "83a43b53.2d7148"
+            ]
+        ]
+    },
+    {
+        "id": "f4148ae0.10ca08",
+        "type": "ui_button",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "group": "884fddda.538b3",
+        "order": 6,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Clear Chat",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "58725a1f.502ae4"
+            ]
+        ]
+    },
+    {
+        "id": "908b0a7a.4a8e08",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "func": "if( typeof msg.payload.intents != 'undefined') {\n    if( msg.payload.intents.length > 0 ) {\n        if( typeof msg.payload.intents[0].intent!= 'undefined') {\n            return [msg, null];\n        }\n    }\n}\nmsg.payload = \"Sorry, the chat bot did not understand the question.\";\nreturn [null,msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 140,
+        "y": 380,
+        "wires": [
+            [
+                "aa39615a.768cf"
+            ],
+            [
+                "95bb9f1a.9d43d"
+            ]
+        ]
+    },
+    {
+        "id": "1f640cf8.d817f3",
+        "type": "ui_gauge",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "group": "884fddda.538b3",
+        "order": 2,
+        "width": "6",
+        "height": "6",
+        "gtype": "gage",
+        "title": "Total Confirmed Cases",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "30000000",
+        "colors": [
+            "#3acb3e",
+            "#f7f036",
+            "#ca3838"
+        ],
+        "seg1": "10000000",
+        "seg2": "20000000",
+        "x": 1040,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "7370edf9.cbe814",
+        "type": "inject",
+        "z": "d25c0873.6fb798",
+        "name": "Hourly updates",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 00 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 680,
+        "wires": [
+            [
+                "5ebcc59a.ddd86c"
+            ]
+        ]
+    },
+    {
+        "id": "71165e3a.93fbe",
+        "type": "ui_gauge",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "group": "884fddda.538b3",
+        "order": 4,
+        "width": "6",
+        "height": "6",
+        "gtype": "gage",
+        "title": "Total Deaths",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1800000",
+        "colors": [
+            "#21c033",
+            "#f9f239",
+            "#ca3838"
+        ],
+        "seg1": "600000",
+        "seg2": "1200000",
+        "x": 1010,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "c188e788.1b21e8",
+        "type": "ui_gauge",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "group": "884fddda.538b3",
+        "order": 1,
+        "width": "6",
+        "height": "6",
+        "gtype": "gage",
+        "title": "Total Countries",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "250",
+        "colors": [
+            "#1cf000",
+            "#ffef42",
+            "#f23030"
+        ],
+        "seg1": "100",
+        "seg2": "215",
+        "x": 1020,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "542ad1ca.14354",
+        "type": "trigger",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "op1": "1",
+        "op2": "0",
+        "op1type": "str",
+        "op2type": "str",
+        "duration": "1",
+        "extend": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "outputs": 1,
+        "x": 260,
+        "y": 580,
+        "wires": [
+            [
+                "5ebcc59a.ddd86c"
+            ]
+        ]
+    },
+    {
+        "id": "2c5f2174.ce5cce",
+        "type": "ui_ui_control",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "events": "change",
+        "x": 100,
+        "y": 580,
+        "wires": [
+            [
+                "542ad1ca.14354"
+            ]
+        ]
+    },
+    {
+        "id": "bffde78f.505818",
+        "type": "comment",
+        "z": "d25c0873.6fb798",
+        "name": "Refresh the dashboard",
+        "info": "",
+        "x": 120,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "5ebcc59a.ddd86c",
+        "type": "twc-covid19-country-report",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "apikey": "a03c7867.b4c0b8",
+        "x": 490,
+        "y": 620,
+        "wires": [
+            [
+                "62ad4308.7575fc",
+                "6417c8b0.a888a8",
+                "a1a9371f.021f78",
+                "4aef0c99.6019c4"
+            ]
+        ]
+    },
+    {
+        "id": "62ad4308.7575fc",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "Total Confirmed Cases",
+        "func": "let totalConfirmedCase = 0;\n\nmsg.payload.covid19.confirmed.map(function(line){\n    totalConfirmedCase += line;\n});\n\nmsg.payload = totalConfirmedCase;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 780,
+        "y": 520,
+        "wires": [
+            [
+                "1f640cf8.d817f3",
+                "3ca96760.7f20e8"
+            ]
+        ]
+    },
+    {
+        "id": "6417c8b0.a888a8",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "Total Fatalities",
+        "func": "let totalFatalities = 0;\n\nmsg.payload.covid19.deaths.map(function(line){\n    totalFatalities += line;\n});\n\nmsg.payload = totalFatalities;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 760,
+        "y": 580,
+        "wires": [
+            [
+                "71165e3a.93fbe"
+            ]
+        ]
+    },
+    {
+        "id": "4aef0c99.6019c4",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "Total Confirmed Countries",
+        "func": "let totalCtryConfirmed = 0;\n\nmsg.payload.covid19.confirmed.map(function(line){\n    if( line !== null ) {\n      totalCtryConfirmed += 1;\n    }\n});\n\nmsg.payload = totalCtryConfirmed;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 640,
+        "wires": [
+            [
+                "c188e788.1b21e8"
+            ]
+        ]
+    },
+    {
+        "id": "a1a9371f.021f78",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 750,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "2d4bcb8c.edbf34",
+        "type": "ui_microphone",
+        "z": "d25c0873.6fb798",
+        "group": "884fddda.538b3",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "maxLength": "60",
+        "timeslice": 0,
+        "x": 90,
+        "y": 100,
+        "wires": [
+            [
+                "797d0ad0.b47aa4"
+            ]
+        ]
+    },
+    {
+        "id": "ba54586d.b370a8",
+        "type": "twc-covid19-country-report",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "apikey": "a03c7867.b4c0b8",
+        "x": 490,
+        "y": 420,
+        "wires": [
+            [
+                "b273e44b.260428"
+            ]
+        ]
+    },
+    {
+        "id": "b273e44b.260428",
+        "type": "function",
+        "z": "d25c0873.6fb798",
+        "name": "Total Confirmed Cases",
+        "func": "let totalConfirmedCase = 0;\n\nmsg.payload.covid19.confirmed.map(function(line){\n    totalConfirmedCase += line;\n});\n\nmsg.payload = \"Worldwide, there have been \"+totalConfirmedCase+\" total confirmed cases of COVID-19\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 780,
+        "y": 420,
+        "wires": [
+            [
+                "95bb9f1a.9d43d",
+                "8cfb384f.2230a8",
+                "83a43b53.2d7148"
+            ]
+        ]
+    },
+    {
+        "id": "19df1c24.d76954",
+        "type": "comment",
+        "z": "d25c0873.6fb798",
+        "name": "node-red-contrib-twc-covid19-tracker",
+        "info": "",
+        "x": 500,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "8cfb384f.2230a8",
+        "type": "debug",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1010,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "134c8f0d.be7711",
+        "type": "ui_audio",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "group": "884fddda.538b3",
+        "voice": "en-US",
+        "always": true,
+        "x": 1200,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "78b512de.2b42cc",
+        "type": "microphone",
+        "z": "d25c0873.6fb798",
+        "name": "",
+        "x": 110,
+        "y": 40,
+        "wires": [
+            [
+                "797d0ad0.b47aa4"
+            ]
+        ]
+    },
+    {
+        "id": "b6fe0a5b.a76268",
+        "type": "ui_group",
+        "z": "",
+        "name": "Chat",
+        "tab": "4b9fd0eb.10905",
+        "order": 2,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "884fddda.538b3",
+        "type": "ui_group",
+        "z": "",
+        "name": "Record",
+        "tab": "4b9fd0eb.10905",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "a03c7867.b4c0b8",
+        "type": "covapikey",
+        "z": "",
+        "name": "covidapi"
+    },
+    {
+        "id": "4b9fd0eb.10905",
+        "type": "ui_tab",
+        "z": "",
+        "name": "COVID Voice Chatbot",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]

@@ -1,0 +1,114 @@
+[
+    {
+        "id": "93a1c2b.b64464",
+        "type": "tab",
+        "label": "Telegram_Integration",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "dd7a97dc.dabe18",
+        "type": "watson-conversation-v1",
+        "z": "93a1c2b.b64464",
+        "name": "CovBot",
+        "workspaceid": "a81dedd2-eebf-4739-ad8e-f616eb10fb57",
+        "multiuser": false,
+        "context": true,
+        "empty-payload": false,
+        "service-endpoint": "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/116dd775-c95c-4d69-a8d6-4b04ea522ddf",
+        "timeout": "",
+        "optout-learning": false,
+        "x": 600,
+        "y": 300,
+        "wires": [
+            [
+                "795c2810.e8c768"
+            ]
+        ]
+    },
+    {
+        "id": "ac17969b.45fbc8",
+        "type": "function",
+        "z": "93a1c2b.b64464",
+        "name": "F1 - Init bot",
+        "func": "/* Function1.js\n * Initialize Telegram bot messages\n * v 1.0\n * November 2018\n */\n\nmsg.chatId = msg.payload.chatId;\nmsg.user = msg.payload.chatId;\nmsg.payload = msg.payload.content;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 200,
+        "wires": [
+            [
+                "dd7a97dc.dabe18"
+            ]
+        ]
+    },
+    {
+        "id": "795c2810.e8c768",
+        "type": "function",
+        "z": "93a1c2b.b64464",
+        "name": "F9 - Response assistant",
+        "func": "/* Function9.js\n * Prepare message to be sent to Telegram bot\n * v 1.0\n * November 2018\n */\n\nvar outputMsg = \"\";\n\tif(msg.payload.output.text) {\n    \t\tfor(i=0;i<msg.payload.output.text.length;i++){\n        \t\t\toutputMsg += msg.payload.output.text[i] +\"\\n\"\n    \t\t}\n\t}\nmsg.payload = {\n  \tchatId : msg.chatId,\n  \ttype : \"message\",\n  \tcontent : outputMsg\n};\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 200,
+        "wires": [
+            [
+                "497f5097.eab77"
+            ]
+        ]
+    },
+    {
+        "id": "84afd56b.8333c8",
+        "type": "telegram receiver",
+        "z": "93a1c2b.b64464",
+        "name": "",
+        "bot": "54545006.9b177",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 150,
+        "y": 280,
+        "wires": [
+            [
+                "ac17969b.45fbc8"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "497f5097.eab77",
+        "type": "telegram sender",
+        "z": "93a1c2b.b64464",
+        "name": "",
+        "bot": "54545006.9b177",
+        "x": 1040,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "54545006.9b177",
+        "type": "telegram bot",
+        "z": "",
+        "botname": "CovBot",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "updatemode": "polling",
+        "pollinterval": "300",
+        "usesocks": false,
+        "sockshost": "",
+        "socksport": "6667",
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "localbotport": "8443",
+        "publicbotport": "8443",
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    }
+]
