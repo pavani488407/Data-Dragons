@@ -51,7 +51,7 @@ Implementation of chat bot with all the features will reduce the maintenance of 
 
 ### Website integration with COVID-19 crisis communication chatbot
 
-![Crisis Comms Architecture diagram](/images/Crisis-Comms-Architecture-Nodejs-WebServer.png)
+![Crisis Comms Architecture diagram](/Images/Architecture.jpg)
 
 1. User visits a website with the COVID-19 chatbot and asks a question.
 2. Node.js web server calls the Watson Assistant service hosted in IBM Cloud.
