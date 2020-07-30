@@ -64,11 +64,14 @@ Implementation of chat bot with all the features will reduce the maintenance of 
 9. IBM Cloud Function calls the COVID-19 API to get statistics.
 10. Watson Assistant replies to the user inquiry.
 11. Node.js web server displays the chat answer to the user.
+12. Watson assistant conversation with user will be stored in the cloundant DB
+13.Cloudant DB data will be feed to machine learning algorithm for predections to classify whether the person is in panic state or not
+14. Predicted data will be stored in CSV format and same will be feed to IBM COGNOS dashboard for display insights
 
 
 ## Datasets
 
-- [covid19api](https://covid19api.com/)
+- We used the conversational chat history of the bot with user 
 
 ## Technology
 
@@ -79,9 +82,10 @@ Implementation of chat bot with all the features will reduce the maintenance of 
 - [Watson Speech to Text](https://www.ibm.com/cloud/watson-speech-to-text)
 - [Watson Text to Speech](https://www.ibm.com/cloud/watson-text-to-speech)
 - [IBM Cloud Functions](https://cloud.ibm.com/functions/)
+- [IBM Cloudant DB](https://www.ibm.com/cloud/cloudant/)
+- [IBM Watson Studio](https://cloud.ibm.com/functions/)
+- [IBM Cognos Dashboard](https://www.ibm.com/cloud/watson-studio/)
+
 
 ### Open source technology
-
-- [Node.js](https://nodejs.org/en/)
-- [Apache OpenWhisk](https://openwhisk.apache.org/)
 - [Node-RED](https://nodered.org/)
